@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 
 #define PROMPT "lambda-shell$ "
 
@@ -99,6 +100,15 @@ int main(void)
         }
 
         #endif
+
+        pid_t rc = fork();
+
+        if (rc == 0) {
+            execvp(args[0], args);
+            exit(1);
+        } else {
+            wait(NULL);
+        }
     }
 
     return 0;

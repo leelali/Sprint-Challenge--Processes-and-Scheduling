@@ -7,11 +7,42 @@ Add your answers inline, below, with your pull request.
 1. List all of the main states a process may be in at any point in time on a
    standard Unix system. Briefly explain what each of these states mean.
 
+   Processes are "stored" on main memory in most of these states.
+   Created: when a process is first created. In this state, the process awaits admission to the "ready" state. Admission will be approved or delayed by scheduler.
+
+   Ready: A "ready" or "waiting" process has been loaded into main memory and is awaiting execution on a CPU. There may have many "ready" processes at any one point of the system's execution, but only one process can be executing at any one time, and others will be waiting for execution. A "ready queue" is used in computer scheduling.
+
+   Running: A process moves into the running state when it is chosen for execution. A process can run in either kernel mode or user mode.
+
+   Blocked: A process transitions to a blocked state when it cannot carry on without an external change in state or envet occuring. For example, a process may block on a call to an I/O device such as a printer.
+
+   Terminated: A process may be terminated, either from the "running" state by completing its execution or by explicitly being killed. The underlying program is no longer executing, but the process remains in the process table as a zombie process until its parent process calls the "wait" system call to read its exit status, at which point the process is removed from the process table, finally ending the process's lifetime. If the parent fails to call "wait", this continues to consume the process table entry, and causes a resource leak.
+
 2. What is a Zombie Process? How does it get created? How does it get destroyed?
+
+   On Unix and Unix-like computer OS, a zombie process is a process that has completed execution (via the "exit" system call) but still has an entry in the process table: it is a process in the "Terminated state". This occurs for child processes, where the entry is still needed to allow the parent process to read its child's exit status: once the exit status is read via the "wait" system call, the zombie's entry is removed from the process table and it is said to be "reaped". A child process always first becomes a zombie before being removed from the resource table. In most cases, under normal system operation zombies are immediately waited on by their parent and then reaped by the system - processes that stay zombies for a long time are generally an error and cause a resource leak. Also, unlike normal processes, the "kill" command has no effect on a zombie process. [notes: Zombie processes should not be confused with "orphan processes", which is a process that is still executing, but whose parent has died]
 
 3. Describe the job of the Scheduler in the OS in general.
 
+   The scheduler is an operating system module that selects the next jobs to be admitted into the system and the next process to run.
+
+   Goals of scheduler: 
+   1. maximizing throughput (the total amount of work completed per time unit);
+   2. minimizing wait time (time from work becoming enabled until the first point it begins execution on rescources);
+   3. minimizing latency or response time;
+   4. maximizing fairness.
+   In practice, these goals often conflict, thus a scheduler will implement a suitable compromise.
+
+   There are three types of schedulers:
+   1. Long-Term scheduler
+   2. Short-Term scheduler
+   3. Medium-Term scheduler
+
 4. Describe the benefits of the MLFQ over a plain Round-Robin scheduler.
+
+   MLFQ is multilevel feedback queue scheduling algorithm. MLFQ scheduler assign processes to queues, and allow a process to move between queues. If a process uses too much CPU time it will be moved to a lower-priority queue. In addition, a process that waits too long in a lower-priority queue may be moved to a higher priority queue. 
+
+   Round-robin(RR): time slices are assigned to each process in equal portions and in circular order, handling all processes without priority.
 
 ## Programming Exercise: The Lambda School Shell (`lssh`)
 
